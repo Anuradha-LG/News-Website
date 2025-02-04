@@ -1,9 +1,9 @@
 <?php
 // Database connection settings
-$host = 'localhost';        // Your database host (usually localhost)
-$dbname = 'newsdata';  // The name of your database
-$username = 'root';         // Your database username (default for XAMPP is 'root')
-$password = '';             // Your database password (default for XAMPP is an empty string)
+$host = 'sql303.infinityfree.com';        // Your database host (usually localhost)
+$dbname = 'f0_38242304_NewsPortal';  // The name of your database
+$username = 'if0_38242304';         // Your database username (default for XAMPP is 'root')
+$password = 'ht7kZZMktl';             // Your database password (default for XAMPP is an empty string)
 
 try {
     // Create PDO connection
