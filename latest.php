@@ -1,15 +1,14 @@
 <?php
 include('db.php');
 
-// Fetch all news with proper error handling
-try {
-    $stmt = $pdo->prepare('SELECT * FROM news ORDER BY created_at DESC');
-    $stmt->execute();
-    $newsItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    // Log error and show user-friendly message
-    error_log($e->getMessage());
-    $newsItems = [];
+// Fetch all news
+$stmt = $pdo->prepare('SELECT * FROM news ORDER BY created_at DESC');
+$stmt->execute();
+$newsItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Function to format date
+function formatDate($date) {
+    return date('F j, Y', strtotime($date));
 }
 ?>
 <!DOCTYPE html>
@@ -66,42 +65,57 @@ try {
         </div>
       </nav>
     </header>
-
-    <div class="news-section">
-    <main>
-    <div class="container">
-        <div class="news-grid">
-            <?php foreach ($newsItems as $news): ?>
-            <article class="news-card">
-                <div class="news-card-image">
-                    <img src="<?php echo !empty($news['image']) ? 'uploads/' . htmlspecialchars($news['image']) : '/assets/images/placeholder.jpg'; ?>" 
-                         alt="<?php echo htmlspecialchars($news['title']); ?>">
-                </div>
-                <div class="news-card-content">
-                    <h3 class="news-card-title"><?php echo htmlspecialchars($news['title']); ?></h3>
-                    <p class="news-card-excerpt">
-                        <?php echo htmlspecialchars(substr(strip_tags($news['content']), 0, 100)) . '...'; ?>
-                    </p>
-                    <div class="news-card-meta">
-                        <span class="news-card-date">
-                            <i class="far fa-calendar"></i>
-                            <?php echo date('M d, Y', strtotime($news['created_at'])); ?>
-                        </span>
-                        <a href="article.php?id=<?php echo $news['id']; ?>" class="news-card-read-more">
-                            Read More
-                        </a>
-                    </div>
-                </div>
-            </article>
-            <?php endforeach; ?>
+    
+    <!-- Main content will start here -->
+    <section class="latest-news-section">
+        <div class="section-header">
+            <h2>Latest News</h2>
+            <p>Stay updated with our most recent stories</p>
         </div>
-    </div>
-</main>
-</div>
 
-    <!-- ---------------------------------------- -->
+        <div class="news-container">
+            <div class="news-grid">
+                <?php foreach ($newsItems as $news): ?>
+                    <article class="news-card">
+                        <div class="card-img">
+                            <?php if ($news['image']): ?>
+                                <img src="uploads/<?php echo htmlspecialchars($news['image']); ?>" 
+                                     alt="<?php echo htmlspecialchars($news['title']); ?>"
+                                     loading="lazy">
+                            <?php else: ?>
+                                <img src="assets/images/placeholder.jpg" 
+                                     alt="News placeholder"
+                                     loading="lazy">
+                            <?php endif; ?>
+                        </div>
+                        <div class="card-content">
+                            <h3><?php echo htmlspecialchars($news['title']); ?></h3>
+                            <p><?php echo htmlspecialchars(substr($news['content'], 0, 150)) . '...'; ?></p>
+                            <div class="meta">
+                                <span class="date">
+                                    <i class="far fa-calendar-alt"></i>
+                                    <?php echo formatDate($news['created_at']); ?>
+                                </span>
+                                <a href="news-detail.php?id=<?php echo $news['id']; ?>" class="read-more">
+                                    Read More <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
 
-    <footer class="main-footer">
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="load-more">
+                    Load More News
+                    <i class="fas fa-spinner fa-spin" style="display: none;"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+<footer class="main-footer">
     <div class="footer-top">
         <div class="container">
             <div class="footer-grid">
@@ -182,5 +196,25 @@ try {
 <button id="backToTop" class="back-to-top" aria-label="Back to top">
     <i class="fas fa-arrow-up"></i>
 </button>
+
+<script>
+        // Show/hide back to top button
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        // Smooth scroll to top
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
   </body>
 </html>
